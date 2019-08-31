@@ -1,0 +1,248 @@
+---
+title: "Trabalho1"
+author: "Roubean Gomes"
+date: "31/08/2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+---
+  title: "Trabalho 1"
+author: "Roubean Gomes"
+date: "29/08/2019"
+output: html_document
+---
+---  
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+install.packages("knitr")
+install.packages("markdown")
+
+Trabalho de Estatistica Descritiva: Medidas de Dispersão/Localização e gráficos
+
+```{r}
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(tidyverse)
+HiperUFSC_Dataset <- read_excel("C:/Users/mirac/Downloads/HiperUFSC Dataset.xlsx")
+View(HiperUFSC_Dataset)
+dados<-HiperUFSC_Dataset
+```
+
+#Transformando Charac em Fator (Variáveis Categoricas)
+
+```{r}
+dados$Item_Fat_Content <- factor(dados$Item_Fat_Content)
+dados$Item_Type <- factor(dados$Item_Type)
+dados$Outlet_Size <- factor(dados$Outlet_Size)
+dados$Outlet_Location_Type <- factor(dados$Outlet_Location_Type)
+dados$Outlet_Type <- factor(dados$Outlet_Type)
+dados$Outlet_Establishment_Year<- factor(dados$Outlet_Establishment_Year)
+```
+
+###Exploração Variaveis Qualitativas
+
+```{r}
+summary.factor(dados$Item_Fat_Content)
+summary.factor(dados$Item_Type)
+summary.factor(dados$Outlet_Size)
+summary.factor(dados$Outlet_Location_Type)
+summary.factor(dados$Outlet_Type)
+str(dados)
+```
+
+Variaveis Quantitativas
+Item Weight, Item Visibility, Item MRP, Estabilishiment Year, Outlet Sales
+Obter medidas de dispersão e medias summary, excluindo dados NA.
+
+```{r}
+summary(dados$Item_Weight)
+sd(dados$Item_Weight, na.rm = TRUE)
+var(dados$Item_Weight, na.rm = TRUE)
+summary(dados$Item_Visibility)
+sd(dados$Item_Visibility, na.rm = TRUE)
+var(dados$Item_Visibility, na.rm = TRUE)
+summary(dados$Item_MRP)
+sd(dados$Item_MRP, na.rm = TRUE)
+var(dados$Item_MRP, na.rm = TRUE)
+summary(dados$Item_Outlet_Sales)
+sd(dados$Item_Outlet_Sales, na.rm = TRUE)
+var(dados$Item_Outlet_Sales, na.rm = TRUE)
+```
+
+Sumarizando Médias
+
+```{r}
+desviopadrao <- summarize(dados, 
+                          sdweight = sd(dados$Item_Weight, na.rm=TRUE), 
+                          sdvisibility = sd(dados$Item_Visibility, na.rm=TRUE),
+                          sdmrp = sd(dados$Item_MRP, na.rm=TRUE),
+                          sdoutletsales = sd(dados$Item_Outlet_Sales, na.rm=TRUE))
+desviopadrao
+```
+
+Exploração dos Dados por meio dos Gráficos
+
+Usado em variaveis Numericas
+Grafico de uma variável
+histograma
+
+```{r}
+hist(dados$Item_Visibility)
+hist(dados$Item_Weight)
+hist(dados$Item_MRP)
+hist(dados$Item_Outlet_Sales)
+```
+
+grafico de densidade
+
+```{r}
+plot(density(dados$Item_Visibility))
+plot(density(dados$Item_Weight, na.rm = TRUE))
+plot(density(dados$Item_MRP))
+plot(density(dados$Item_Outlet_Sales))
+```
+
+grafico Boxplot Analisar MRP Weight Outlet Sales EstabilishimentYear
+
+```{r}
+boxplot(dados$Item_MRP)
+boxplot(dados$Item_Weight)
+boxplot(dados$Item_Outlet_Sales) ##demonstrou mais outliers (interessante)
+```
+
+Grafico de Barras para variaveis categoricas fator
+
+```{r}
+plot(dados$Item_Fat_Content)
+plot(dados$Item_Type)
+plot(dados$Item_Fat_Content)
+```
+
+Duas variaveis scatter plot num x num
+
+```{r}
+plot(dados$Item_Outlet_Sales, dados$Item_Visibility)
+```
+
+categorica x categorica 
+
+TIPO MOSAICO
+
+Relacionar Tipo de Cidade (Outlet Location Type) x Tamanho da Loja (Outlet Size) são duas variaveis categoricas. Usar Grafico Mosaico.
+
+```{r}
+plot(table(dados$Outlet_Location_Type, dados$Outlet_Size))
+```
+
+fator x qualitativa = Outlet Size  x estabilishiment Year 
+
+
+```{r}
+
+ggplot(dados, 
+       aes(x = dados$Outlet_Establishment_Year, 
+           fill = dados$Outlet_Size)) + 
+  geom_bar()
+
+```
+
+Conclussão: Empresa média predomina o cenário desde 1980 
+
+
+NUMX CATEGORICA
+
+
+Relacionar Item Weight com Item Fat Content = (PesoxGordura) NumxFator
+
+
+```{r}
+plot(dados$Item_Fat_Content, dados$Item_Weight)
+```
+
+
+
+grafico multivariaveis usando ggplot
+
+
+
+Dados Preço x Venda de Produtos com Cor determinado o tipo de produto
+
+
+```{r}
+ggplot(dados, aes( x=dados$Item_MRP, y=dados$Item_Outlet_Sales))+
+  geom_point(aes(color=dados$Item_Type))+
+  geom_smooth()
+```
+
+
+Grafico Multivariaveis
+
+
+ideia outlet type x item visibility
+
+
+```{r}
+ggplot(dados, 
+       aes(x = dados$Item_MRP  , 
+           y = dados$Item_Visibility, 
+           color = Item_Type)) +
+  geom_point() +
+  labs(title = "Relação Visibilidade do Item com Preço (MRP)")
+
+```
+
+
+Resultado: Pouco Conclusivo.
+
+
+Relacionar Venda de Produtos por Tipo de Loja (OutletSales x Outlet Type)
+
+NumericaxFactor
+
+
+```{r}
+
+ggplot(dados, 
+       aes(x = dados$Outlet_Type, 
+           y = dados$Item_Outlet_Sales)) +
+  geom_bar(stat = "identity")
+ggplot(dados, 
+       aes(x = dados$Item_Outlet_Sales, 
+           fill = dados$Outlet_Type )) +
+  geom_density(alpha = 0.4) +
+  labs(title = "Vendas Distribuidas por Tipo de 'Loja'")
+```
+
+#Aqui é claro a diferença de densidade preços de uma grocery store para os supermercados de tipo 1, 2 ou 3.
+
+
+Selecionar Observações
+
+```{r}
+mercearia1 <- filter(dados, dados$Outlet_Type== "Grocery Store")
+mercearia1
+```
+
+
+Usar mercearia1 = Grocery Store x Item Fat Content
+
+
+Grafico tipo hist
+
+
+mutate criar nova tabela a partir das existentes
+
+
+mutate OutletSales x Area da Loja = Venda por Area de loja não posssivel pois area da loja é categorica nesse caso.
+
+
+
+
+---
+
+
